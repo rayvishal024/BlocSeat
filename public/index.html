@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <title>BlocSeat</title>
+     <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex items-center justify-center">
+
+     <!-- AUTH CONTAINER -->
+
+     <div id="authContainer" class="w-full max-w-md bg-gray-900 p-8 rounded-2xl shadow-xl">
+
+          <h1 class="text-3xl font-bold text-center mb-6">BlocSeat 🎟️</h1>
+
+          <!-- LOGIN -->
+
+          <div id="loginForm">
+               <h2 class="text-xl mb-4 text-center">Login</h2>
+
+               ```
+               <input id="loginEmail" placeholder="Email"
+                    class="w-full p-3 mb-3 rounded bg-gray-800 border border-gray-700" />
+               <input id="loginPassword" type="password" placeholder="Password"
+                    class="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-700" />
+
+               <button onclick="login()" class="w-full bg-blue-500 hover:bg-blue-600 p-3 rounded font-semibold">
+                    Login
+               </button>
+
+               <p class="text-center mt-4 text-sm text-gray-400">
+                    Don't have an account?
+                    <span onclick="showRegister()" class="text-blue-400 cursor-pointer">Register</span>
+               </p>
+               ```
+
+          </div>
+
+          <!-- REGISTER -->
+
+          <div id="registerForm" class="hidden">
+               <h2 class="text-xl mb-4 text-center">Register</h2>
+
+               ```
+               <input id="regName" placeholder="Name"
+                    class="w-full p-3 mb-3 rounded bg-gray-800 border border-gray-700" />
+               <input id="regEmail" placeholder="Email"
+                    class="w-full p-3 mb-3 rounded bg-gray-800 border border-gray-700" />
+               <input id="regPassword" type="password" placeholder="Password"
+                    class="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-700" />
+
+               <button onclick="register()" class="w-full bg-green-500 hover:bg-green-600 p-3 rounded font-semibold">
+                    Register
+               </button>
+
+               <p class="text-center mt-4 text-sm text-gray-400">
+                    Already have an account?
+                    <span onclick="showLogin()" class="text-green-400 cursor-pointer">Login</span>
+               </p>
+               ```
+
+          </div>
+     </div>
+
+     <!-- APP -->
+
+     <div id="app" class="hidden w-full max-w-5xl">
+
+          <!-- HEADER -->
+
+          <div class="flex justify-between items-center mb-6">
+               <h1 class="text-3xl font-bold">🎬 BlocSeat</h1>
+               <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded">Logout</button>
+          </div>
+
+          <!-- LEGEND -->
+
+          <div class="flex gap-6 mb-6">
+               <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 bg-green-500 rounded"></div> Available
+               </div>
+               <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 bg-red-500 rounded"></div> Booked
+               </div>
+          </div>
+
+          <!-- SEATS GRID -->
+
+          <div id="seats" class="grid grid-cols-5 gap-4"></div>
+     </div>
+
+     <script>
+          const API = "/api";
+
+          // UI SWITCH
+          function showRegister() {
+               document.getElementById("loginForm").classList.add("hidden");
+               document.getElementById("registerForm").classList.remove("hidden");
+          }
+
+          function showLogin() {
+               document.getElementById("registerForm").classList.add("hidden");
+               document.getElementById("loginForm").classList.remove("hidden");
+          }
+
+          function showApp() {
+               document.getElementById("authContainer").classList.add("hidden");
+               document.getElementById("app").classList.remove("hidden");
+               loadSeats();
+          }
+
+          // AUTH
+          async function register() {
+               const name = regName.value;
+               const email = regEmail.value;
+               const password = regPassword.value;
+
+               const res = await fetch(`${API}/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password })
+               });
+
+               const data = await res.json();
+               alert(data.message || data.error);
+          }
+
+          async function login() {
+               const email = loginEmail.value;
+               const password = loginPassword.value;
+
+               const res = await fetch(`${API}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+               });
+
+               const data = await res.json();
+
+               if (data.token) {
+                    localStorage.setItem("token", data.token);
+                    showApp();
+               } else {
+                    alert(data.error);
+               }
+          }
+
+          function logout() {
+               localStorage.removeItem("token");
+               location.reload();
+          }
+
+          // SEATS
+          async function loadSeats() {
+               const res = await fetch(`${API}/seats`);
+               const seats = await res.json();
+
+               const container = document.getElementById("seats");
+               container.innerHTML = "";
+
+               seats.sort((a, b) => a.id - b.id).forEach(seat => {
+                    const div = document.createElement("div");
+
+                    div.className = `
+      h-24 flex flex-col justify-center items-center rounded-xl font-bold
+      transition duration-200
+      ${seat.isbooked
+                              ? "bg-red-500/20 text-red-400 border border-red-500 cursor-not-allowed"
+                              : "bg-green-500 text-white hover:scale-105 cursor-pointer"}
+    `;
+
+                    div.innerHTML = `
+      Seat ${seat.id}
+      ${seat.isbooked ? `<span class="text-xs mt-1">Booked by ${seat.name}</span>` : ""}
+    `;
+
+                    if (!seat.isbooked) {
+                         div.onclick = () => bookSeat(seat.id);
+                    }
+
+                    container.appendChild(div);
+               });
+          }
+
+          // BOOK
+          async function bookSeat(id) {
+               const token = localStorage.getItem("token");
+
+               const res = await fetch(`${API}/seats/book/${id}`, {
+                    method: "PUT",
+                    headers: {
+                         "Authorization": `Bearer ${token}`
+                    }
+               });
+
+               const data = await res.json();
+
+               if (data.error) {
+                    alert(data.error);
+               } else {
+                    loadSeats();
+               }
+          }
+
+          // AUTO LOGIN
+          if (localStorage.getItem("token")) {
+               showApp();
+          }
+     </script>
+
+</body>
+
+</html>

@@ -19,6 +19,8 @@ app.use(express.static("public"));
 app.use("/api/auth", authRoutes);
 app.use("/api/seats", seatRoutes);
 
+// test routes
+
 app.listen(port, () => {
      console.log(`Server running on ${port}`);
 });
