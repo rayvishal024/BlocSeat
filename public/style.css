@@ -1,0 +1,86 @@
+/* Premium Inputs */
+.input-field {
+     width: 100%;
+     padding: 16px 20px;
+     background: #08090a;
+     border: 1px solid rgba(255, 255, 255, 0.08);
+     border-radius: 16px;
+     color: white;
+     outline: none;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-field:focus {
+     border-color: #3b82f6;
+     background: #0c0d0f;
+     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Button UI */
+.btn-main {
+     background: #2563eb;
+     box-shadow: 0 10px 25px -10px rgba(37, 99, 235, 0.5);
+     transition: all 0.3s ease;
+}
+
+.btn-main:hover {
+     background: #1d4ed8;
+     transform: translateY(-2px);
+     box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.6);
+}
+
+/* Seat Component Styles */
+.seat-card {
+     height: 110px;
+     border-radius: 20px;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+     border: 1px solid transparent;
+}
+
+.seat-available {
+     background: #10b981;
+     color: white;
+     cursor: pointer;
+     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.seat-available:hover {
+     background: #059669;
+     transform: scale(1.08) translateY(-5px);
+}
+
+.seat-booked {
+     background: #161b22;
+     border: 1px solid rgba(255, 255, 255, 0.05);
+     color: #475569;
+     cursor: not-allowed;
+}
+
+.booked-name {
+     font-size: 9px;
+     text-transform: uppercase;
+     font-weight: 800;
+     margin-top: 6px;
+     color: #64748b;
+     background: rgba(255, 255, 255, 0.03);
+     padding: 3px 8px;
+     border-radius: 6px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+     width: 5px;
+}
+
+::-webkit-scrollbar-track {
+     background: #08090a;
+}
+
+::-webkit-scrollbar-thumb {
+     background: #1e293b;
+     border-radius: 10px;
+}
